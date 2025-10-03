@@ -16,21 +16,35 @@ class AuthController {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
 
-      await _firestore
-          .collection('buyers')
-          .doc(userCredential.user!.uid)
-          .set({
+      await _firestore.collection('buyers').doc(userCredential.user!.uid).set({
         'fullName': fullName,
+        'email': email,
         'profileImage': '',
         'uid': userCredential.user!.uid,
         'pinCode': '',
         'locality': '',
         'city': '',
-        'state': ''
+        'state': '',
       });
 
       res = 'success';
-    } catch (e) {}
+    } catch (e) {
+      res = e.toString();
+    }
+    return res;
+  }
+
+  //login user
+  Future<String> loginUser(String email, String password) async {
+    String res = 'something went wrong';
+
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+      res = 'success';
+    } catch (e) {
+      res = e.toString();
+    }
     return res;
   }
 }

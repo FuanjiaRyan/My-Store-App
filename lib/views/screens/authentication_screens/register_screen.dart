@@ -19,6 +19,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   late String password;
 
+  registerUser() async {
+    BuildContext localContext = context;
+    String res = await _authController.registerNewUser(
+      email,
+      fullName,
+      password,
+    );
+    if (res == 'success') {
+      Future.delayed(Duration.zero, () {
+        Navigator.push(
+          localContext,
+          MaterialPageRoute(
+            builder: (context) {
+              return LoginScreen();
+            },
+          ),
+        );
+
+        ScaffoldMessenger.of(localContext).showSnackBar(
+          SnackBar(
+            content: Text('congratulations, account have been created for you'),
+          ),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,9 +99,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       email = value;
                     },
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'enter your email';
-                      } else{
+                      } else {
                         return null;
                       }
                     },
@@ -119,7 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       fullName = value;
                     },
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'enter your full name';
                       } else {
                         return null;
@@ -166,7 +193,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       password = value;
                     },
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'enter your password';
                       } else {
                         return null;
@@ -201,9 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   InkWell(
                     onTap: () {
                       if(_formKey.currentState!.validate()) {
-                        _authController.registerNewUser(email, fullName, password);
-                      } else {
-                        print('failed');
+                        registerUser();
                       }
                     },
                     child: Container(

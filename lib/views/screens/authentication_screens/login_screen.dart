@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ryan_store_app/controllers/auth_controller.dart';
 import 'package:ryan_store_app/views/screens/authentication_screens/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -9,10 +10,22 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final AuthController _authController = AuthController();
 
   late String email;
 
   late String password;
+
+  loginUser() async{
+    String res = await _authController.loginUser(email, password);
+
+    if(res=='success') {
+      //go to the main screen
+      print('Logged in');
+    } else {
+      print(res);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +77,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextFormField(
                     onChanged: (value) {
-                      email =value;
+                      email = value;
                     },
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'enter your email';
                       } else {
                         return null;
@@ -103,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       password = value;
                     },
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'enter your password';
                       } else {
                         return null;
@@ -137,9 +150,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 20),
                   InkWell(
                     onTap: () {
-                      if(_formKey.currentState!.validate()) {
-                        print(email);
-                        print(password);
+                      if (_formKey.currentState!.validate()) {
+                        loginUser();
                       } else {
                         print('failed');
                       }
