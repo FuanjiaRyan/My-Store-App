@@ -5,6 +5,10 @@ import 'package:ryan_store_app/views/screens/authentication_screens/login_screen
 class RegisterScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  late String email;
+  late String fullName;
+  late String password;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,6 +58,9 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                   TextFormField(
+                    onChanged: (value) {
+                      email = value;
+                    },
                     validator: (value) {
                       if(value!.isEmpty) {
                         return 'enter your email';
@@ -98,6 +105,9 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                   TextFormField(
+                    onChanged: (value) {
+                      fullName = value;
+                    },
                     validator: (value) {
                       if(value!.isEmpty) {
                         return 'enter your full name';
@@ -142,6 +152,9 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                   TextFormField(
+                    onChanged: (value) {
+                      password = value;
+                    },
                     validator: (value) {
                       if(value!.isEmpty) {
                         return 'enter your password';
@@ -178,7 +191,9 @@ class RegisterScreen extends StatelessWidget {
                   InkWell(
                     onTap: () {
                       if(_formKey.currentState!.validate()) {
-                        print('correct');
+                        print(email);
+                        print(fullName);
+                        print(password);
                       } else {
                         print('failed');
                       }
