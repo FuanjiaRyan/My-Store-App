@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ryan_store_app/controllers/auth_controller.dart';
 import 'package:ryan_store_app/views/screens/authentication_screens/register_screen.dart';
+import 'package:ryan_store_app/views/screens/main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -16,11 +17,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
   late String password;
 
-  loginUser() async{
+  loginUser() async {
     String res = await _authController.loginUser(email, password);
 
-    if(res=='success') {
+    if (res == 'success') {
       //go to the main screen
+      Future.delayed(Duration.zero, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return MainScreen();
+            },
+          ),
+        );
+
+        //we want to show a message to a user to tell them they have logged in
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Logged in')));
+      });
+
       print('Logged in');
     } else {
       print(res);
