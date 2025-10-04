@@ -5,7 +5,7 @@ class HeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height * 0.20,
       child: Stack(
@@ -70,8 +70,8 @@ class HeaderWidget extends StatelessWidget {
               child: InkWell(
                 onTap: () {},
                 child: Ink(
-                  width: 31,
-                  height: 31,
+                  width: 30,
+                  height: 30,
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage('assets/icons/bell-ring.png'),
@@ -80,6 +80,25 @@ class HeaderWidget extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+          Positioned(
+            left: 357,
+              top: 50,
+              child: Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  onTap: () {},
+                  child: Ink(
+                    width: 30,
+                    height: 31,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/icons/comment.png'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ),
         ],
       ),
