@@ -12,12 +12,17 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final AuthController _authController = AuthController();
+  bool _isLoading = false;
 
   late String email;
 
   late String password;
+  bool _isObscure = true;
 
   loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
     String res = await _authController.loginUser(email, password);
 
     if (res == 'success') {
@@ -34,12 +39,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
         //we want to show a message to a user to tell them they have logged in
 
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Logged in')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Logged in')));
       });
 
       print('Logged in');
     } else {
       print(res);
+      setState(() {
+        _isLoading = false;
+      });
+
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(res)));
+      });
     }
   }
 
@@ -128,6 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 20),
                   TextFormField(
+                    obscureText: _isObscure,
                     onChanged: (value) {
                       password = value;
                     },
@@ -160,7 +177,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 20,
                         ),
                       ),
-                      suffixIcon: Icon(Icons.visibility),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure;
+                          });
+                        },
+                        icon: Icon(_isObscure ? Icons.visibility: Icons.visibility_off),
+                      ),
                     ),
                   ),
                   SizedBox(height: 20),
@@ -237,15 +261,20 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           Center(
-                            child: Text(
-                              'Sign in',
-                              style: GoogleFonts.getFont(
-                                'Lato',
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
+                            child:
+                                _isLoading
+                                    ? CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
+                                    : Text(
+                                      'Sign in',
+                                      style: GoogleFonts.getFont(
+                                        'Lato',
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
                           ),
                         ],
                       ),

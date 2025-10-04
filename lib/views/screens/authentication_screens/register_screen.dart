@@ -12,15 +12,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final AuthController _authController = AuthController();
-
+  bool _isLoading = false;
   late String email;
 
   late String fullName;
 
   late String password;
 
+  bool _isObscure = true;
+
   registerUser() async {
     BuildContext localContext = context;
+    setState(() {
+      _isLoading = true;
+    });
     String res = await _authController.registerNewUser(
       email,
       fullName,
@@ -38,10 +43,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
 
         ScaffoldMessenger.of(localContext).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('congratulations, account have been created for you'),
           ),
         );
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(res)));
       });
     }
   }
@@ -189,6 +204,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   TextFormField(
+                    obscureText: _isObscure,
                     onChanged: (value) {
                       password = value;
                     },
@@ -221,13 +237,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           height: 20,
                         ),
                       ),
-                      suffixIcon: Icon(Icons.visibility),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure;
+                          });
+                        },
+                        icon: Icon(_isObscure?Icons.visibility : Icons.visibility_off),
+                      ),
                     ),
                   ),
                   SizedBox(height: 20),
                   InkWell(
                     onTap: () {
-                      if(_formKey.currentState!.validate()) {
+                      if (_formKey.currentState!.validate()) {
                         registerUser();
                       }
                     },
@@ -296,15 +319,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           Center(
-                            child: Text(
-                              'Sign up',
-                              style: GoogleFonts.getFont(
-                                'Lato',
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
+                            child:
+                                _isLoading
+                                    ? CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
+                                    : Text(
+                                      'Sign up',
+                                      style: GoogleFonts.getFont(
+                                        'Lato',
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
                           ),
                         ],
                       ),
