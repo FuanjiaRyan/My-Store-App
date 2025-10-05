@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:ryan_store_app/controllers/banner_controller.dart';
 
@@ -71,9 +72,16 @@ class _BannerWidgetState extends State<BannerWidget> {
                     PageView.builder(
                       itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
-                          return Image.network(snapshot.data![index], fit: BoxFit.cover,);
+                          return CachedNetworkImage(
+                              imageUrl: snapshot.data![index],
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                            CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => Icon(Icons.error),
+                          );
                         },
-                    )
+                    ),
+                    _buildPageIndicator(snapshot.data!.length)
                   ],
                 );
               }
@@ -92,5 +100,25 @@ class _BannerWidgetState extends State<BannerWidget> {
     //       },
     //   ),
     // );
+  }
+
+  Widget _buildPageIndicator(int pageCount) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(pageCount, (index) {
+          return Container(
+            width: 8,
+            height: 8.0,
+            margin: EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.blueAccent,
+            ),
+          );
+        }),
+      ),
+    );
   }
 }
