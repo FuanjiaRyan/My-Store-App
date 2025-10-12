@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:ryan_store_app/controllers/category_controller.dart';
 import 'package:ryan_store_app/views/screens/authentication_screens/login_screen.dart';
@@ -47,7 +48,7 @@ Future<void> main() async {
     }
   }
   
-  runApp(const MyApp());
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
