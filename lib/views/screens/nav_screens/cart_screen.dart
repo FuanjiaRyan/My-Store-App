@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ryan_store_app/provider/cart_provider.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:ryan_store_app/views/screens/inner_screens/checkout_screen.dart';
 import 'package:ryan_store_app/views/screens/main_screen.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
@@ -337,7 +338,16 @@ class _CartScreenState extends ConsumerState<CartScreen> {
             Align(
               alignment: Alignment(0.83, -1),
               child: InkWell(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return CheckoutScreen();
+                      },
+                    ),
+                  );
+                },
                 child: Container(
                   width: 166,
                   height: 71,
