@@ -95,10 +95,17 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
           onTap: () async {
             if (_formKey.currentState!.validate()) {
               //update user locality, city, state, pinCode
+              _showDialog(context);
               await _firestore
                   .collection('buyers')
                   .doc(_auth.currentUser!.uid)
-                  .update({'state': state, 'city': city, 'locality': locality});
+                  .update({'state': state, 'city': city, 'locality': locality})
+                  .whenComplete(() {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _formKey.currentState!.validate();
+                    });
+              });
             } else {
               //we can show snackBar
             }
@@ -124,5 +131,28 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
         ),
       ),
     );
+  }
+
+  void _showDialog(BuildContext context) {
+    showDialog(
+      barrierDismissible: false, //user must tap button
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Updating Address'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 10),
+              Text('Please Wait...'),
+            ],
+          ),
+        );
+      },
+    );
+    Future.delayed(Duration(seconds: 3), () {
+      Navigator.of(context).pop();
+    });
   }
 }
