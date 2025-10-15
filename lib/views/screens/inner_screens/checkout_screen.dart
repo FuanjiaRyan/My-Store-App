@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ryan_store_app/provider/cart_provider.dart';
+import 'package:ryan_store_app/views/screens/inner_screens/shipping_address_screen.dart';
 import 'package:ryan_store_app/views/screens/main_screen.dart';
 import 'package:uuid/uuid.dart';
 
@@ -24,75 +25,247 @@ class _checkoutScreenState extends ConsumerState<CheckoutScreen> {
     final cartProviderData = ref.read(cartProvider);
     return Scaffold(
       appBar: AppBar(title: Text('Checkout')),
-      body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            InkWell(
-              onTap: () {},
-              child: SizedBox(
-                width: 335,
-                height: 74,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ShippingAddressScreen();
+                      },
+                    ),
+                  );
+                },
+                child: SizedBox(
+                  width: 335,
+                  height: 74,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        child: Container(
+                          width: 335,
+                          height: 74,
+                          clipBehavior: Clip.hardEdge,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Color(0xffeff0f2)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 70,
+                        top: 17,
+                        child: SizedBox(
+                          width: 215,
+                          height: 41,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Positioned(
+                                left: -1,
+                                top: -1,
+                                child: SizedBox(
+                                  width: 219,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          'Add Address',
+                                          style: GoogleFonts.getFont(
+                                            'Lato',
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            height: 1.3,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          'Enter City',
+                                          style: GoogleFonts.getFont(
+                                            'Lato',
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            height: 1.3,
+                                            color: Color(0xff7f808c),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 16,
+                        top: 16,
+                        child: SizedBox.square(
+                          dimension: 42,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Positioned(
+                                left: 0,
+                                top: 0,
+                                child: Container(
+                                  width: 43,
+                                  height: 43,
+                                  clipBehavior: Clip.hardEdge,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xfffbf7f5),
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  child: Stack(
+                                    clipBehavior: Clip.hardEdge,
+                                    children: [
+                                      Positioned(
+                                        left: 11,
+                                        top: 11,
+                                        child: Image.asset(
+                                          'assets/icons/location1.png',
+                                          color: Colors.blueAccent.shade700,
+                                          width: 24,
+                                          height: 24,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 305,
+                        top: 25,
+                        child: Image.asset(
+                          'assets/icons/edit.png',
+                          width: 24,
+                          height: 24,
+                          color: Colors.blueAccent.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 15),
+              Text(
+                'Your item',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 15),
+              Flexible(
+                child: ListView.builder(
+                  itemCount: cartProviderData.length,
+                  shrinkWrap: true,
+                  physics: ScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final cartItem = cartProviderData.values.toList()[index];
+                    return InkWell(
+                      onTap: () {},
                       child: Container(
-                        width: 335,
-                        height: 74,
-                        clipBehavior: Clip.hardEdge,
+                        width: 336,
+                        height: 91,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(color: Color(0xffeff0f2)),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 70,
-                      top: 17,
-                      child: SizedBox(
-                        width: 215,
-                        height: 41,
                         child: Stack(
                           clipBehavior: Clip.none,
                           children: [
                             Positioned(
-                              left: -1,
-                              top: -1,
+                              left: 6,
+                              top: 6,
                               child: SizedBox(
-                                width: 219,
-                                child: Column(
+                                width: 311,
+                                child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
-                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        'Add Address',
-                                        style: GoogleFonts.getFont(
-                                          'Lato',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          height: 1.3,
+                                    Container(
+                                      width: 78,
+                                      height: 78,
+                                      clipBehavior: Clip.hardEdge,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xffbcc5ff),
+                                      ),
+                                      child: Image.network(
+                                        cartItem.imageUrl[0],
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    SizedBox(width: 11),
+                                    Expanded(
+                                      child: Container(
+                                        height: 78,
+                                        alignment: Alignment(0, -0.51),
+                                        child: SizedBox(
+                                          width: double.infinity,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: Text(
+                                                  cartItem.productName,
+                                                  style: GoogleFonts.getFont(
+                                                    'Lato',
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    height: 1.3,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(height: 4),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  cartItem.categoryName,
+                                                  style: TextStyle(
+                                                    color: Colors.blueGrey,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 5),
-                                    Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        'Enter City',
-                                        style: GoogleFonts.getFont(
-                                          'Lato',
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          height: 1.3,
-                                          color: Color(0xff7f808c),
-                                        ),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      cartItem.discount.toStringAsFixed(2),
+                                      style: GoogleFonts.getFont(
+                                        'Lato',
+                                        fontSize: 14,
+                                        color: Colors.pinkAccent.shade700,
+                                        height: 1.3,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ],
@@ -102,145 +275,37 @@ class _checkoutScreenState extends ConsumerState<CheckoutScreen> {
                           ],
                         ),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
-            ),
-            Text(
-              'Your item',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Flexible(
-              child: ListView.builder(
-                itemCount: cartProviderData.length,
-                shrinkWrap: true,
-                physics: ScrollPhysics(),
-                itemBuilder: (context, index) {
-                  final cartItem = cartProviderData.values.toList()[index];
-                  return InkWell(
-                    onTap: () {},
-                    child: Container(
-                      width: 336,
-                      height: 91,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Color(0xffeff0f2)),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Positioned(
-                            left: 6,
-                            top: 6,
-                            child: SizedBox(
-                              width: 311,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    width: 78,
-                                    height: 78,
-                                    clipBehavior: Clip.hardEdge,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xffbcc5ff),
-                                    ),
-                                    child: Image.network(
-                                      cartItem.imageUrl[0],
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  SizedBox(width: 11),
-                                  Expanded(
-                                    child: Container(
-                                      height: 78,
-                                      alignment: Alignment(0, -0.51),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            SizedBox(
-                                              width: double.infinity,
-                                              child: Text(
-                                                cartItem.productName,
-                                                style: GoogleFonts.getFont(
-                                                  'Lato',
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w500,
-                                                  height: 1.3,
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                cartItem.categoryName,
-                                                style: TextStyle(
-                                                  color: Colors.blueGrey,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    cartItem.discount.toStringAsFixed(2),
-                                    style: GoogleFonts.getFont(
-                                      'Lato',
-                                      fontSize: 14,
-                                      color: Colors.pinkAccent.shade700,
-                                      height: 1.3,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+              SizedBox(height: 30),
+              Text(
+                'Choose Payment Method',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              RadioListTile<String>(
+                title: Text('Stripe'),
+                value: 'stripe',
+                groupValue: _selectedPaymentMethod,
+                onChanged: (String? value) {
+                  setState(() {
+                    _selectedPaymentMethod = value!;
+                  });
                 },
               ),
-            ),
-            SizedBox(height: 30),
-            Text(
-              'Choose Payment Method',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            RadioListTile<String>(
-              title: Text('Stripe'),
-              value: 'stripe',
-              groupValue: _selectedPaymentMethod,
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedPaymentMethod = value!;
-                });
-              },
-            ),
-            RadioListTile<String>(
-              title: Text('Cash on Delivery'),
-              value: 'cashOnDelivery',
-              groupValue: _selectedPaymentMethod,
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedPaymentMethod = value!;
-                });
-              },
-            ),
-          ],
+              RadioListTile<String>(
+                title: Text('Cash on Delivery'),
+                value: 'cashOnDelivery',
+                groupValue: _selectedPaymentMethod,
+                onChanged: (String? value) {
+                  setState(() {
+                    _selectedPaymentMethod = value!;
+                  });
+                },
+              ),
+            ],
+          ),
         ),
       ),
       bottomSheet: Padding(
