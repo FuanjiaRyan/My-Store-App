@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ryan_store_app/provider/cart_provider.dart';
+import 'package:ryan_store_app/views/screens/main_screen.dart';
+import 'package:uuid/uuid.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
@@ -11,6 +15,9 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 }
 
 class _checkoutScreenState extends ConsumerState<CheckoutScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool isLoading = false;
   String _selectedPaymentMethod = 'stripe';
   @override
   Widget build(BuildContext context) {
@@ -134,27 +141,117 @@ class _checkoutScreenState extends ConsumerState<CheckoutScreen> {
               'Choose Payment Method',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            RadioListTile<String>(
+              title: Text('Stripe'),
+              value: 'stripe',
+              groupValue: _selectedPaymentMethod,
+              onChanged: (String? value) {
+                setState(() {
+                  _selectedPaymentMethod = value!;
+                });
+              },
+            ),
+            RadioListTile<String>(
+              title: Text('Cash on Delivery'),
+              value: 'cashOnDelivery',
+              groupValue: _selectedPaymentMethod,
+              onChanged: (String? value) {
+                setState(() {
+                  _selectedPaymentMethod = value!;
+                });
+              },
+            ),
           ],
         ),
       ),
       bottomSheet: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: Container(
-          height: 50,
-          width: MediaQuery.of(context).size.width - 50,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Color(0xff1532e7),
-          ),
-          child: Center(
-            child: Text(
-              'PLACE ORDER',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 17,
-                height: 1.4,
-              ),
+        child: InkWell(
+          onTap: () async {
+            if (_selectedPaymentMethod == 'stripe') {
+              //pay with stripe
+            } else {
+              setState(() {
+                isLoading = true;
+              });
+              for (var item
+                  in ref.read(cartProvider.notifier).getCartItem.values) {
+                DocumentSnapshot userDoc =
+                    await _firestore
+                        .collection('buyers')
+                        .doc(_auth.currentUser!.uid)
+                        .get();
+                CollectionReference orderRefer = _firestore.collection(
+                  'orders',
+                );
+                final orderId = Uuid().v4();
+                await orderRefer
+                    .doc(orderId)
+                    .set({
+                      'orderId': orderId,
+                      'productName': item.productName,
+                      'productId': item.productId,
+                      'size': item.productSize,
+                      'quantity': item.quantity,
+                      'price': item.quantity * item.productPrice,
+                      'category': item.categoryName,
+                      'productImage': item.imageUrl[0],
+                      'state':
+                          (userDoc.data() as Map<String, dynamic>)['state'],
+                      'email':
+                          (userDoc.data() as Map<String, dynamic>)['email'],
+                      'locality':
+                          (userDoc.data() as Map<String, dynamic>)['locality'],
+                      'fullName':
+                          (userDoc.data() as Map<String, dynamic>)['fullName'],
+                      'buyerId': _auth.currentUser!.uid,
+                      'deliveredCount': 0,
+                      'delivered': false,
+                      'processing': true,
+                    })
+                    .whenComplete(() {
+                      cartProviderData.clear();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return MainScreen();
+                          },
+                        ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: Colors.grey,
+                          content: Text('order have been placed'),
+                        ),
+                      );
+                      setState(() {
+                        isLoading = false;
+                      });
+                    });
+              }
+            }
+          },
+          child: Container(
+            height: 50,
+            width: MediaQuery.of(context).size.width - 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Color(0xff1532e7),
+            ),
+            child: Center(
+              child:
+                  isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                        'PLACE ORDER',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          height: 1.4,
+                        ),
+                      ),
             ),
           ),
         ),
