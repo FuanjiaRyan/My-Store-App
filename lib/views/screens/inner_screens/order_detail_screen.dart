@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends StatefulWidget {
   final dynamic orderData;
 
-  const OrderDetailScreen({super.key, required this.orderData});
+  OrderDetailScreen({super.key, required this.orderData});
+
+  @override
+  State<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends State<OrderDetailScreen> {
+  double rating = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(orderData['productName'])),
+      appBar: AppBar(title: Text(widget.orderData['productName'])),
       body: Column(
         children: [
           Padding(
@@ -57,7 +65,7 @@ class OrderDetailScreen extends StatelessWidget {
                                       left: 10,
                                       top: 5,
                                       child: Image.network(
-                                        orderData['productImage'],
+                                        widget.orderData['productImage'],
                                         width: 58,
                                         height: 67,
                                         fit: BoxFit.cover,
@@ -92,14 +100,14 @@ class OrderDetailScreen extends StatelessWidget {
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 16,
                                                 ),
-                                                orderData['productName'],
+                                                widget.orderData['productName'],
                                               ),
                                             ),
                                             SizedBox(height: 4),
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
-                                                orderData['category'],
+                                                widget.orderData['category'],
                                                 style: TextStyle(
                                                   color: Color(0xff7f808c),
                                                   fontSize: 12,
@@ -108,7 +116,7 @@ class OrderDetailScreen extends StatelessWidget {
                                             ),
                                             SizedBox(height: 2),
                                             Text(
-                                              '\$${orderData['price']}',
+                                              '\$${widget.orderData['price']}',
                                               style: TextStyle(
                                                 color: Color(0xff0b0c1e),
                                                 fontSize: 14,
@@ -131,18 +139,19 @@ class OrderDetailScreen extends StatelessWidget {
                                 clipBehavior: Clip.antiAlias,
                                 decoration: BoxDecoration(
                                   color:
-                                      orderData['delivered'] == true
+                                      widget.orderData['delivered'] == true
                                           ? Color(0xFF3c55ef)
-                                          : orderData['processing'] == true
+                                          : widget.orderData['processing'] ==
+                                              true
                                           ? Colors.purpleAccent
                                           : Colors.red,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Center(
                                   child: Text(
-                                    orderData['delivered'] == true
+                                    widget.orderData['delivered'] == true
                                         ? 'Delivered'
-                                        : orderData['processing'] == true
+                                        : widget.orderData['processing'] == true
                                         ? 'Processing'
                                         : 'Cancelled',
                                     style: TextStyle(
@@ -194,15 +203,17 @@ class OrderDetailScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          orderData['locality'] + "    " + orderData['city'],
+                          widget.orderData['locality'] +
+                              "    " +
+                              widget.orderData['city'],
                           style: TextStyle(fontSize: 16),
                         ),
                         Text(
-                          orderData['state'],
+                          widget.orderData['state'],
                           style: TextStyle(fontSize: 16, letterSpacing: 1),
                         ),
                         Text(
-                          'To ${orderData['fullName']}',
+                          'To ${widget.orderData['fullName']}',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -212,10 +223,55 @@ class OrderDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  orderData['delivered'] == true
+                  widget.orderData['delivered'] == true
                       ? Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(onPressed: () {}, child: Text('Review')),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Leave a Review'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: 'Your review',
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: RatingBar.builder(
+                                          initialRating: rating,
+                                          direction: Axis.horizontal,
+                                          minRating: 1,
+                                          maxRating: 5,
+                                          allowHalfRating: true,
+                                          itemSize: 24,
+                                          unratedColor: Colors.grey,
+                                          itemCount: 5,
+                                          itemPadding: EdgeInsets.symmetric(horizontal: 4),
+                                          itemBuilder: (context, _) {
+                                            return Icon(
+                                              Icons.star,
+                                              color: Colors.amber,
+                                            );
+                                          },
+                                          onRatingUpdate: (value) {
+                                            rating = value;
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Text('Review'),
+                        ),
                       )
                       : SizedBox(),
                 ],
