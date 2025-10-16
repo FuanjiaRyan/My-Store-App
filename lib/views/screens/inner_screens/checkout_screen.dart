@@ -20,6 +20,35 @@ class _checkoutScreenState extends ConsumerState<CheckoutScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool isLoading = false;
   String _selectedPaymentMethod = 'stripe';
+
+  //get current user info
+  String state = '';
+  String city = '';
+  String locality = '';
+
+  @override
+  void initState() {
+    getUserData();
+    super.initState();
+  }
+
+  //get current user details
+  void getUserData() {
+    Stream<DocumentSnapshot> userDataStream =
+        _firestore.collection('buyers').doc(_auth.currentUser!.uid).snapshots();
+
+    //listen to the stream and update the data
+    userDataStream.listen((DocumentSnapshot userData) {
+      if (userData.exists) {
+        setState(() {
+          state = userData.get('state');
+          city = userData.get('city');
+          locality = userData.get('locality');
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final cartProviderData = ref.read(cartProvider);
@@ -308,98 +337,125 @@ class _checkoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
         ),
       ),
-      bottomSheet: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: InkWell(
-          onTap: () async {
-            if (_selectedPaymentMethod == 'stripe') {
-              //pay with stripe
-            } else {
-              setState(() {
-                isLoading = true;
-              });
-              for (var item
-                  in ref.read(cartProvider.notifier).getCartItem.values) {
-                DocumentSnapshot userDoc =
-                    await _firestore
-                        .collection('buyers')
-                        .doc(_auth.currentUser!.uid)
-                        .get();
-                CollectionReference orderRefer = _firestore.collection(
-                  'orders',
-                );
-                final orderId = Uuid().v4();
-                await orderRefer
-                    .doc(orderId)
-                    .set({
-                      'orderId': orderId,
-                      'productName': item.productName,
-                      'productId': item.productId,
-                      'size': item.productSize,
-                      'quantity': item.quantity,
-                      'price': item.quantity * item.productPrice,
-                      'category': item.categoryName,
-                      'productImage': item.imageUrl[0],
-                      'state':
-                          (userDoc.data() as Map<String, dynamic>)['state'],
-                      'email':
-                          (userDoc.data() as Map<String, dynamic>)['email'],
-                      'locality':
-                          (userDoc.data() as Map<String, dynamic>)['locality'],
-                      'fullName':
-                          (userDoc.data() as Map<String, dynamic>)['fullName'],
-                      'buyerId': _auth.currentUser!.uid,
-                      'deliveredCount': 0,
-                      'delivered': false,
-                      'processing': true,
-                    })
-                    .whenComplete(() {
-                      cartProviderData.clear();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return MainScreen();
-                          },
-                        ),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: Colors.grey,
-                          content: Text('order have been placed'),
-                        ),
-                      );
-                      setState(() {
-                        isLoading = false;
-                      });
-                    });
-              }
-            }
-          },
-          child: Container(
-            height: 50,
-            width: MediaQuery.of(context).size.width - 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Color(0xff1532e7),
-            ),
-            child: Center(
-              child:
-                  isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                        'PLACE ORDER',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                          height: 1.4,
-                        ),
+      bottomSheet:
+          state == ''
+              ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ShippingAddressScreen();
+                        },
                       ),
-            ),
-          ),
-        ),
-      ),
+                    );
+                  },
+                  child: Text('Add Address'),
+                ),
+              )
+              : Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: InkWell(
+                  onTap: () async {
+                    if (_selectedPaymentMethod == 'stripe') {
+                      //pay with stripe
+                    } else {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      for (var item
+                          in ref
+                              .read(cartProvider.notifier)
+                              .getCartItem
+                              .values) {
+                        DocumentSnapshot userDoc =
+                            await _firestore
+                                .collection('buyers')
+                                .doc(_auth.currentUser!.uid)
+                                .get();
+                        CollectionReference orderRefer = _firestore.collection(
+                          'orders',
+                        );
+                        final orderId = Uuid().v4();
+                        await orderRefer
+                            .doc(orderId)
+                            .set({
+                              'orderId': orderId,
+                              'productName': item.productName,
+                              'productId': item.productId,
+                              'size': item.productSize,
+                              'quantity': item.quantity,
+                              'price': item.quantity * item.productPrice,
+                              'category': item.categoryName,
+                              'productImage': item.imageUrl[0],
+                              'state':
+                                  (userDoc.data()
+                                      as Map<String, dynamic>)['state'],
+                              'email':
+                                  (userDoc.data()
+                                      as Map<String, dynamic>)['email'],
+                              'locality':
+                                  (userDoc.data()
+                                      as Map<String, dynamic>)['locality'],
+                              'fullName':
+                                  (userDoc.data()
+                                      as Map<String, dynamic>)['fullName'],
+                              'buyerId': _auth.currentUser!.uid,
+                              'deliveredCount': 0,
+                              'delivered': false,
+                              'processing': true,
+                          'city': (userDoc.data()
+                          as Map<String, dynamic>)['city'],
+                            })
+                            .whenComplete(() {
+                              cartProviderData.clear();
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return MainScreen();
+                                  },
+                                ),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.grey,
+                                  content: Text('order have been placed'),
+                                ),
+                              );
+                              setState(() {
+                                isLoading = false;
+                              });
+                            });
+                      }
+                    }
+                  },
+                  child: Container(
+                    height: 50,
+                    width: MediaQuery.of(context).size.width - 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color(0xff1532e7),
+                    ),
+                    child: Center(
+                      child:
+                          isLoading
+                              ? CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                'PLACE ORDER',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                  height: 1.4,
+                                ),
+                              ),
+                    ),
+                  ),
+                ),
+              ),
     );
   }
 }
