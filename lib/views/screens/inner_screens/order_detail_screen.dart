@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,7 +14,41 @@ class OrderDetailScreen extends StatefulWidget {
 }
 
 class _OrderDetailScreenState extends State<OrderDetailScreen> {
+  final TextEditingController _reviewController = TextEditingController();
   double rating = 0;
+
+  // Check if the current logged in user has already reviewed this product
+  Future<bool> hasUserReviewedProduct(String productId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    final querySnapshot =
+        await FirebaseFirestore.instance
+            .collection('productReviews')
+            .where('productId', isEqualTo: productId)
+            .where('buyerId', isEqualTo: user!.uid)
+            .get();
+    return querySnapshot.docs.isNotEmpty;
+  }
+
+  //update review and rating within the product collection
+  Future<void> updateProductRating(String productId) async {
+    final querySnapshot =
+        await FirebaseFirestore.instance
+            .collection('productReviews')
+            .where('productId', isEqualTo: productId)
+            .get();
+    double totalRating = 0;
+    int totalReviews = querySnapshot.docs.length;
+    for (final doc in querySnapshot.docs) {
+      totalRating += doc['rating'];
+    }
+
+    final double averageRating =
+        totalReviews > 0 ? totalRating / totalReviews : 0;
+    await FirebaseFirestore.instance
+        .collection('products')
+        .doc(productId)
+        .update({'rating': averageRating, 'totalReviews': totalReviews});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -227,48 +263,188 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       ? Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text('Leave a Review'),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      TextFormField(
-                                        decoration: InputDecoration(
-                                          labelText: 'Your review',
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: RatingBar.builder(
-                                          initialRating: rating,
-                                          direction: Axis.horizontal,
-                                          minRating: 1,
-                                          maxRating: 5,
-                                          allowHalfRating: true,
-                                          itemSize: 24,
-                                          unratedColor: Colors.grey,
-                                          itemCount: 5,
-                                          itemPadding: EdgeInsets.symmetric(horizontal: 4),
-                                          itemBuilder: (context, _) {
-                                            return Icon(
-                                              Icons.star,
-                                              color: Colors.amber,
-                                            );
-                                          },
-                                          onRatingUpdate: (value) {
-                                            rating = value;
-                                          },
-                                        ),
+                          onPressed: () async {
+                            final productId = widget.orderData['productId'];
+                            final hasReviewed = await hasUserReviewedProduct(
+                              productId,
+                            );
+                            if (!hasReviewed) {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () async {
+                                          final review = _reviewController.text;
+                                          await FirebaseFirestore.instance
+                                              .collection('productReviews')
+                                              .doc(widget.orderData['orderId'])
+                                              .set({
+                                                'reviewId':
+                                                    widget.orderData['orderId'],
+                                                'productId':
+                                                    widget
+                                                        .orderData['productId'],
+                                                'fullName':
+                                                    widget
+                                                        .orderData['fullName'],
+                                                'email':
+                                                    widget.orderData['email'],
+                                                'buyerId':
+                                                    FirebaseAuth
+                                                        .instance
+                                                        .currentUser!
+                                                        .uid,
+                                                'rating': rating,
+                                                'review': review,
+                                                'timeStamp': Timestamp.now(),
+                                              })
+                                              .whenComplete(() {
+                                                updateProductRating(productId);
+                                                Navigator.of(context).pop();
+                                                _reviewController.clear();
+                                                rating = 0;
+                                              });
+                                        },
+                                        child: Text('Submit'),
                                       ),
                                     ],
-                                  ),
-                                );
-                              },
-                            );
+                                    title: Text('Update Review'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextFormField(
+                                          controller: _reviewController,
+                                          decoration: InputDecoration(
+                                            labelText: 'Update your review',
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: RatingBar.builder(
+                                            initialRating: rating,
+                                            direction: Axis.horizontal,
+                                            minRating: 1,
+                                            maxRating: 5,
+                                            allowHalfRating: true,
+                                            itemSize: 24,
+                                            unratedColor: Colors.grey,
+                                            itemCount: 5,
+                                            itemPadding: EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
+                                            itemBuilder: (context, _) {
+                                              return Icon(
+                                                Icons.star,
+                                                color: Colors.amber,
+                                              );
+                                            },
+                                            onRatingUpdate: (value) {
+                                              rating = value;
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            } else {
+                              // User has already reviewed, show update dialog
+                              // First, get the existing review data
+                              final existingReview = await FirebaseFirestore.instance
+                                  .collection('productReviews')
+                                  .where('productId', isEqualTo: productId)
+                                  .where('buyerId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                                  .get();
+                              
+                              if (existingReview.docs.isNotEmpty) {
+                                final reviewData = existingReview.docs.first.data();
+                                _reviewController.text = reviewData['review'] ?? '';
+                                rating = (reviewData['rating'] ?? 0).toDouble();
+                              }
+                              
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () async {
+                                          final review = _reviewController.text;
+                                          final reviewDoc = existingReview.docs.first;
+                                          await reviewDoc.reference.update({
+                                                'reviewId':
+                                                    widget.orderData['orderId'],
+                                                'productId':
+                                                    widget
+                                                        .orderData['productId'],
+                                                'fullName':
+                                                    widget
+                                                        .orderData['fullName'],
+                                                'email':
+                                                    widget.orderData['email'],
+                                                'buyerId':
+                                                    FirebaseAuth
+                                                        .instance
+                                                        .currentUser!
+                                                        .uid,
+                                                'rating': rating,
+                                                'review': review,
+                                                'timeStamp': Timestamp.now(),
+                                              })
+                                              .whenComplete(() {
+                                                updateProductRating(productId);
+                                                Navigator.of(context).pop();
+                                                _reviewController.clear();
+                                                rating = 0;
+                                              });
+                                        },
+                                        child: Text('Submit'),
+                                      ),
+                                    ],
+                                    title: Text('Leave a Review'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextFormField(
+                                          controller: _reviewController,
+                                          decoration: InputDecoration(
+                                            labelText: 'Your review',
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: RatingBar.builder(
+                                            initialRating: rating,
+                                            direction: Axis.horizontal,
+                                            minRating: 1,
+                                            maxRating: 5,
+                                            allowHalfRating: true,
+                                            itemSize: 24,
+                                            unratedColor: Colors.grey,
+                                            itemCount: 5,
+                                            itemPadding: EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
+                                            itemBuilder: (context, _) {
+                                              return Icon(
+                                                Icons.star,
+                                                color: Colors.amber,
+                                              );
+                                            },
+                                            onRatingUpdate: (value) {
+                                              rating = value;
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            }
                           },
                           child: Text('Review'),
                         ),

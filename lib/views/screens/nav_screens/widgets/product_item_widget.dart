@@ -16,7 +16,7 @@ class ProductItemWidget extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return ProductDetailScreen(productData: productData,);
+              return ProductDetailScreen(productData: productData);
             },
           ),
         );
@@ -169,9 +169,16 @@ class ProductItemWidget extends StatelessWidget {
               left: 23,
               top: 155,
               child: Text(
-                '4.5',
+                productData['rating'] == 0
+                    ? ''
+                    : productData['rating'].toString(),
                 style: GoogleFonts.lato(color: Color(0xff7f8e9b), fontSize: 12),
               ),
+            ),
+            Positioned(
+              left: 8,
+              top: 158,
+              child: Icon(Icons.star, color: Colors.amber, size: 12),
             ),
             Positioned(
               left: 115,
