@@ -175,11 +175,13 @@ class ProductItemWidget extends StatelessWidget {
                 style: GoogleFonts.lato(color: Color(0xff7f8e9b), fontSize: 12),
               ),
             ),
-            Positioned(
-              left: 8,
-              top: 158,
-              child: Icon(Icons.star, color: Colors.amber, size: 12),
-            ),
+            productData['rating'] == 0
+                ? SizedBox()
+                : Positioned(
+                  left: 8,
+                  top: 158,
+                  child: Icon(Icons.star, color: Colors.amber, size: 12),
+                ),
             Positioned(
               left: 115,
               top: 10,
