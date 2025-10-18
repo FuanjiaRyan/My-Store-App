@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ryan_store_app/controllers/auth_controller.dart';
+import 'package:ryan_store_app/vendor/controllers/vendor_controller.dart';
 import 'package:ryan_store_app/vendor/views/auth/vendor_register_screen.dart';
+import 'package:ryan_store_app/vendor/views/screens/main_vendor_screen.dart';
 import 'package:ryan_store_app/views/screens/authentication_screens/register_screen.dart';
 import 'package:ryan_store_app/views/screens/main_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class VendorLoginScreen extends StatefulWidget {
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<VendorLoginScreen> createState() => _VendorLoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _VendorLoginScreenState extends State<VendorLoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final AuthController _authController = AuthController();
+  final VendorAuthController _authController = VendorAuthController();
   bool _isLoading = false;
 
   late String email;
@@ -33,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return MainScreen();
+              return MainVendorScreen();
             },
           ),
         );
@@ -74,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Login Your Account',
+                    "Login Vendor's Account",
                     style: GoogleFonts.getFont(
                       'Lato',
                       color: Color(0xFF0d120E),
@@ -263,19 +264,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           Center(
                             child:
-                                _isLoading
-                                    ? CircularProgressIndicator(
-                                      color: Colors.white,
-                                    )
-                                    : Text(
-                                      'Sign in',
-                                      style: GoogleFonts.getFont(
-                                        'Lato',
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
+                            _isLoading
+                                ? CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                                : Text(
+                              'Sign in',
+                              style: GoogleFonts.getFont(
+                                'Lato',
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
                           ),
                         ],
                       ),

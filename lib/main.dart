@@ -1,14 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:ryan_store_app/controllers/category_controller.dart';
-import 'package:ryan_store_app/views/screens/authentication_screens/login_screen.dart';
-import 'package:ryan_store_app/views/screens/authentication_screens/register_screen.dart';
-import 'dart:io';
-
-import 'package:ryan_store_app/views/screens/main_screen.dart';
+import 'package:ryan_store_app/vendor/views/screens/main_vendor_screen.dart';
+import 'package:ryan_store_app/views/screens/authentication_screens/login_screen.dart';import 'dart:io';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,7 +56,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: MainScreen(),
+      home: MainVendorScreen(),
       initialBinding: BindingsBuilder(() {
         Get.put<CategoryController>(CategoryController());
       }),

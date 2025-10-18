@@ -1,53 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ryan_store_app/controllers/auth_controller.dart';
-import 'package:ryan_store_app/vendor/views/auth/vendor_register_screen.dart';
-import 'package:ryan_store_app/views/screens/authentication_screens/register_screen.dart';
-import 'package:ryan_store_app/views/screens/main_screen.dart';
+import 'package:ryan_store_app/vendor/controllers/vendor_controller.dart';
+import 'package:ryan_store_app/vendor/views/auth/vendor_login_screen.dart';
+import 'package:ryan_store_app/views/screens/authentication_screens/login_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class VendorRegisterScreen extends StatefulWidget {
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<VendorRegisterScreen> createState() => _VendorRegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _VendorRegisterScreenState extends State<VendorRegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final AuthController _authController = AuthController();
-  bool _isLoading = false;
 
+  final VendorAuthController _authController = VendorAuthController();
+  bool _isLoading = false;
   late String email;
 
+  late String fullName;
+
   late String password;
+
   bool _isObscure = true;
 
-  loginUser() async {
+  registerUser() async {
+    BuildContext localContext = context;
     setState(() {
       _isLoading = true;
     });
-    String res = await _authController.loginUser(email, password);
-
+    String res = await _authController.registerNewUser(
+      email,
+      fullName,
+      password,
+    );
     if (res == 'success') {
-      //go to the main screen
       Future.delayed(Duration.zero, () {
         Navigator.push(
-          context,
+          localContext,
           MaterialPageRoute(
             builder: (context) {
-              return MainScreen();
+              return LoginScreen();
             },
           ),
         );
 
-        //we want to show a message to a user to tell them they have logged in
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Logged in')));
+        ScaffoldMessenger.of(localContext).showSnackBar(
+          const SnackBar(
+            content: Text('congratulations, account have been created for you'),
+          ),
+        );
       });
-
-      print('Logged in');
     } else {
-      print(res);
       setState(() {
         _isLoading = false;
       });
@@ -74,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Login Your Account',
+                    "Create Vendor's Account",
                     style: GoogleFonts.getFont(
                       'Lato',
                       color: Color(0xFF0d120E),
@@ -144,6 +146,64 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      'Full name',
+                      style: GoogleFonts.getFont(
+                        'Nunito Sans',
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ),
+                  TextFormField(
+                    onChanged: (value) {
+                      fullName = value;
+                    },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'enter your full name';
+                      } else {
+                        return null;
+                      }
+                    },
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      labelText: 'enter your full name',
+                      labelStyle: GoogleFonts.getFont(
+                        'Nunito Sans',
+                        fontSize: 14,
+                        letterSpacing: 0.1,
+                      ),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Image.asset(
+                          'assets/icons/user4.png',
+                          width: 20,
+                          height: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      'Password',
+                      style: GoogleFonts.getFont(
+                        'Nunito Sans',
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ),
                   TextFormField(
                     obscureText: _isObscure,
                     onChanged: (value) {
@@ -184,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             _isObscure = !_isObscure;
                           });
                         },
-                        icon: Icon(_isObscure ? Icons.visibility: Icons.visibility_off),
+                        icon: Icon(_isObscure?Icons.visibility : Icons.visibility_off),
                       ),
                     ),
                   ),
@@ -192,9 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   InkWell(
                     onTap: () {
                       if (_formKey.currentState!.validate()) {
-                        loginUser();
-                      } else {
-                        print('failed');
+                        registerUser();
                       }
                     },
                     child: Container(
@@ -263,19 +321,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           Center(
                             child:
-                                _isLoading
-                                    ? CircularProgressIndicator(
-                                      color: Colors.white,
-                                    )
-                                    : Text(
-                                      'Sign in',
-                                      style: GoogleFonts.getFont(
-                                        'Lato',
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
+                            _isLoading
+                                ? CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                                : Text(
+                              'Sign up',
+                              style: GoogleFonts.getFont(
+                                'Lato',
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -286,7 +344,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Need an account?',
+                        'Already have an account?',
                         style: GoogleFonts.roboto(
                           fontWeight: FontWeight.w500,
                           letterSpacing: 1,
@@ -299,46 +357,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return RegisterScreen();
+                                return VendorLoginScreen();
                               },
                             ),
                           );
                         },
                         child: Text(
-                          'Sign up',
-                          style: GoogleFonts.roboto(
-                            color: Color(0xff103de5),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Become a Vendor',
-                        style: GoogleFonts.roboto(
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return VendorRegisterScreen();
-                              },
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Sign up',
+                          'Login',
                           style: GoogleFonts.roboto(
                             color: Color(0xff103de5),
                             fontWeight: FontWeight.bold,
