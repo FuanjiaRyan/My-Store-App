@@ -6,6 +6,9 @@ import 'package:ryan_store_app/controllers/category_controller.dart';
 import 'package:ryan_store_app/vendor/views/screens/main_vendor_screen.dart';
 import 'dart:io';
 
+import 'package:ryan_store_app/views/screens/authentication_screens/login_screen.dart';
+import 'package:ryan_store_app/views/screens/main_screen.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -56,7 +59,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: MainVendorScreen(),
+      home: MainScreen(),
       initialBinding: BindingsBuilder(() {
         Get.put<CategoryController>(CategoryController());
       }),

@@ -406,8 +406,10 @@ class _checkoutScreenState extends ConsumerState<CheckoutScreen> {
                               'deliveredCount': 0,
                               'delivered': false,
                               'processing': true,
-                          'city': (userDoc.data()
-                          as Map<String, dynamic>)['city'],
+                              'vendorId': item.vendorId,
+                              'city':
+                                  (userDoc.data()
+                                      as Map<String, dynamic>)['city'],
                             })
                             .whenComplete(() {
                               cartProviderData.clear();

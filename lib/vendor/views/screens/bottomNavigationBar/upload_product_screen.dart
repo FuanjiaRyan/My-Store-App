@@ -100,6 +100,8 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
             'vendorId': FirebaseAuth.instance.currentUser!.uid,
             'vendorName':
                 (vendorDoc.data() as Map<String, dynamic>)['fullName'],
+            'rating': 0,
+            'totalReviews': 0,
           })
           .whenComplete(() {
             setState(() {
@@ -197,6 +199,9 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
                             if (value.isNotEmpty &&
                                 double.tryParse(value) != null) {
                               productPrice = double.parse(value);
+                            } else {
+                              //handle the case where value is invalid or empty
+                              productPrice = 0.0;
                             }
                           },
                           validator: (value) {
@@ -224,7 +229,12 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
                   SizedBox(height: 20),
                   TextFormField(
                     onChanged: (value) {
-                      discount = int.parse(value);
+                      if (value.isNotEmpty && int.tryParse(value) != null) {
+                        discount = int.parse(value);
+                      } else {
+                        //handle the case where value is invalid or empty
+                        discount = 0;
+                      }
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -246,7 +256,12 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
                   SizedBox(height: 20),
                   TextFormField(
                     onChanged: (value) {
-                      quantity = int.parse(value);
+                      if (value.isNotEmpty && int.tryParse(value) != null) {
+                        quantity = int.parse(value);
+                      } else {
+                        //handle the case where value is invalid or empty
+                        quantity = 1;
+                      }
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
