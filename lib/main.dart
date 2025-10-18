@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:ryan_store_app/controllers/category_controller.dart';
 import 'package:ryan_store_app/vendor/views/screens/main_vendor_screen.dart';
-import 'package:ryan_store_app/views/screens/authentication_screens/login_screen.dart';import 'dart:io';
+import 'dart:io';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
