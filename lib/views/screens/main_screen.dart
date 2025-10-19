@@ -18,7 +18,7 @@ class _MainScreenState extends State<MainScreen> {
     FavoriteScreen(),
     StoresScreen(),
     CartScreen(),
-    AccountScreen(),
+    AccountScreen(), 
   ];
 
   @override
