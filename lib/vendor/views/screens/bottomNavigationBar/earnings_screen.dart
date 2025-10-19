@@ -8,6 +8,15 @@ class EarningsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Stream<QuerySnapshot> ordersStream =
+        FirebaseFirestore.instance
+            .collection('orders')
+            .where(
+              'vendorId',
+              isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+            )
+            .snapshots();
+
     CollectionReference users = FirebaseFirestore.instance.collection(
       'vendors',
     );
@@ -55,6 +64,98 @@ class EarningsScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              actions: [IconButton(onPressed: () async{
+                await FirebaseAuth.instance.signOut();
+              }, icon: Icon(Icons.logout))],
+            ),
+            body: StreamBuilder<QuerySnapshot>(
+              stream: ordersStream,
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<QuerySnapshot> snapshot,
+              ) {
+                if (snapshot.hasError) {
+                  return Text('Something went wrong');
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.blueAccent.shade700,
+                    ),
+                  );
+                }
+                double totalOrder = 0.0;
+                for (var orderItem in snapshot.data!.docs) {
+                  totalOrder +=
+                      (orderItem['quantity'] as num).toDouble() *
+                      (orderItem['price'] as num).toDouble();
+                }
+                return Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(14),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Container(
+                          height: 150,
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          decoration: BoxDecoration(
+                            color: Color(0xff102de1),
+                            borderRadius: BorderRadius.circular(32),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(
+                                'Total Earnings',
+                                style: GoogleFonts.montserrat(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                '\$${totalOrder.toStringAsFixed(2)}',
+                                style: GoogleFonts.montserrat(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: 150,
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(32),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(
+                                'Total Orders',
+                                style: GoogleFonts.montserrat(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                snapshot.data!.docs.length.toString(),
+                                style: GoogleFonts.montserrat(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           );
         }
