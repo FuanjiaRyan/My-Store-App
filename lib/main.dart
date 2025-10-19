@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: MainVendorScreen(),
+      home: MainScreen(),
       initialBinding: BindingsBuilder(() {
         Get.put<CategoryController>(CategoryController());
       }),
