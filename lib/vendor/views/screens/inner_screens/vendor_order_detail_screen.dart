@@ -195,6 +195,7 @@ class _VendorOrderDetailScreenState extends State<VendorOrderDetailScreen> {
                                       height: 1.3,
                                     ),
                                   ),
+
                                 ),
                               ),
                             ),
@@ -252,6 +253,31 @@ class _VendorOrderDetailScreenState extends State<VendorOrderDetailScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 2,
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xff3c55ef),
+                          ),
+                          onPressed: () async {
+                            await FirebaseFirestore.instance
+                                .collection('orders')
+                                .doc(widget.orderData['orderId'])
+                                .update({
+                              'delivered': true,
+                              'processing': false,
+                              'deliveredCount': FieldValue.increment(1),
+                            });
+                          },
+                          child:
+                          widget.orderData['delivered'] == true
+                              ? Text(
+                            'Delivered',
+                            style: TextStyle(color: Colors.white),
+                          )
+                              : Text(
+                            'Mark Delivered',
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
